@@ -1,0 +1,63 @@
+@page "/workers"
+@inject IWorkerService WorkerService
+@inject NavigationManager NavigationManager
+
+<h3>Workers</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 16ch">Id</th>
+            <th>Name</th>
+            <th>Bus</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var worker in WorkerService.Workers)
+        {
+            <tr>
+                <td>@worker.Id.ToString().Substring(0, 4)...@worker.Id.ToString().Substring(32, 4)</td>
+                <td>@worker.Name</td>
+                <td>@(worker.Bus is null ? "" : worker.Bus.LicensePlate)</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowWorker(worker.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger"
+                        @onclick="(() => DeleteWorker(worker.Id))">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewWorker">
+    Create New Worker
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await WorkerService.GetWorkers();
+    }
+    void ShowWorker(Guid id)
+    {
+        NavigationManager.NavigateTo($"/Worker/{id}");
+    }
+
+    void CreateNewWorker()
+    {
+        NavigationManager.NavigateTo("/Worker");
+    }
+    async Task DeleteWorker(Guid workerId)
+    {
+        await WorkerService.DeleteWorker(workerId);
+
+        WorkerService.Workers.RemoveAll(t => t.Id == workerId);
+    }
+
+}

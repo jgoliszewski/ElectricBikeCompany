@@ -1,0 +1,63 @@
+@page "/docks"
+@inject IDockService DockService
+@inject NavigationManager NavigationManager
+
+<h3>Docks</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 16ch">Id</th>
+            <th>Taken / Capacity</th>
+            <th>Address</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dock in DockService.Docks)
+        {
+            <tr>
+                <td>@dock.Id.ToString().Substring(0, 4)...@dock.Id.ToString().Substring(32, 4)</td>
+                <td>@dock.Taken_spaces / @dock.Capacity</td>
+                <td>@dock.Address</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowDock(dock.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger"
+                        @onclick="(() => DeleteDock(dock.Id))">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewDock">
+    Create New Dock
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await DockService.GetDocks();
+    }
+    void ShowDock(Guid id)
+    {
+        NavigationManager.NavigateTo($"/Dock/{id}");
+    }
+
+    void CreateNewDock()
+    {
+        NavigationManager.NavigateTo("/Dock");
+    }
+    async Task DeleteDock(Guid dockId)
+    {
+        await DockService.DeleteDock(dockId);
+
+        DockService.Docks.RemoveAll(t => t.Id == dockId);
+    }
+
+}

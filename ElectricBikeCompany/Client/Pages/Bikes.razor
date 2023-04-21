@@ -1,0 +1,65 @@
+@page "/bikes"
+@inject IBikeService BikeService
+@inject NavigationManager NavigationManager
+
+<h3>Bikes</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 16ch">Id</th>
+            <th>Battery %</th>
+            <th>Model</th>
+            <th>Dock</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bike in BikeService.Bikes)
+        {
+            <tr>
+                <td>@bike.Id.ToString().Substring(0, 4)...@bike.Id.ToString().Substring(32, 4)</td>
+                <td>@bike.BatteryPercent</td>
+                <td>@(bike.Model is null ? "" : bike.Model.Name)</td>
+                <td>@(bike.Dock is null ? "" : bike.Dock.Address)</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowBike(bike.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger"
+                        @onclick="(() => DeleteBike(bike.Id))">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewBike">
+    Create New Bike
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await BikeService.GetBikes();
+    }
+    void ShowBike(Guid id)
+    {
+        NavigationManager.NavigateTo($"/Bike/{id}");
+    }
+
+    void CreateNewBike()
+    {
+        NavigationManager.NavigateTo("/Bike");
+    }
+    async Task DeleteBike(Guid bikeId)
+    {
+        await BikeService.DeleteBike(bikeId);
+
+        BikeService.Bikes.RemoveAll(t => t.Id == bikeId);
+    }
+
+}

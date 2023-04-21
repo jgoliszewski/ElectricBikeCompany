@@ -1,0 +1,62 @@
+@page "/users"
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Users</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 16ch">Id</th>
+            <th>Username</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in UserService.Users)
+        {
+            <tr>
+                <td>@user.Id.ToString().Substring(0, 4)...@user.Id.ToString().Substring(32, 4)</td>
+                <td>@user.Username</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowUser(user.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger"
+                        @onclick="(() => DeleteUser(user.Id))">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewUser">
+    Create New User
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await UserService.GetUsers();
+        Console.WriteLine(UserService.Users[0].Id);
+    }
+    void ShowUser(Guid id)
+    {
+        NavigationManager.NavigateTo($"/User/{id}");
+    }
+
+    void CreateNewUser()
+    {
+        NavigationManager.NavigateTo("/User");
+    }
+    async Task DeleteUser(Guid userId)
+    {
+        await UserService.DeleteUser(userId);
+
+        UserService.Users.RemoveAll(t => t.Id == userId);
+    }
+
+}

@@ -1,0 +1,72 @@
+@page "/rents"
+@inject IRentService RentService
+@inject NavigationManager NavigationManager
+
+<h3>Rents</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 16ch">Id</th>
+            <th>User</th>
+            <th>Bike</th>
+            <th>Rent Start Time</th>
+            <th>Rent End Time</th>
+            <th>Starting Dock</th>
+            <th>Ending Dock</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rent in RentService.Rents)
+        {
+            <tr>
+                <td>@rent.Id.ToString().Substring(0, 4)...@rent.Id.ToString().Substring(32, 4)</td>
+                <td>@(rent.User is null ? "" : rent.User.Username)</td>
+                <td>@(rent.Bike is null ? "" : rent.Bike.Model.Name)</td>
+                <td>@(rent.Rent_start is null ? "" : rent.Rent_start)</td>
+                <td>@(rent.Rent_end is null ? "" : rent.Rent_end)</td>
+                <td>@(rent.Dock_start is null ? "" : rent.Dock_start.Address)</td>
+                <td>@(rent.Dock_end is null ? "" : rent.Dock_end.Address)</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowRent(rent.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger"
+                        @onclick="(() => DeleteRent(rent.Id))">
+                        <i class="oi oi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary"
+        @onclick="CreateNewRent">
+    Create New Rent
+</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await RentService.GetRents();
+        Console.WriteLine(RentService.Rents[0].Id);
+    }
+    void ShowRent(Guid id)
+    {
+        NavigationManager.NavigateTo($"/Rent/{id}");
+    }
+
+    void CreateNewRent()
+    {
+        NavigationManager.NavigateTo("/Rent");
+    }
+    async Task DeleteRent(Guid rentId)
+    {
+        await RentService.DeleteRent(rentId);
+
+        RentService.Rents.RemoveAll(t => t.Id == rentId);
+    }
+
+}
