@@ -34,103 +34,36 @@ public class DbSeeder
 
     private static List<Bus> Buses = new List<Bus>()
     {
-        new Bus()
-        {
-            Id = Guid.NewGuid(),
-            LicensePlate = "WG12345",
-            Capacity = 15
-        },
-        new Bus()
-        {
-            Id = Guid.NewGuid(),
-            LicensePlate = "WG00001",
-            Capacity = 15
-        },
-        new Bus()
-        {
-            Id = Guid.NewGuid(),
-            LicensePlate = "WG01230",
-            Capacity = 20
-        },
-        new Bus()
-        {
-            Id = Guid.NewGuid(),
-            LicensePlate = "WG12321",
-            Capacity = 20
-        },
+        new Bus() { LicensePlate = "WG12345", Capacity = 15 },
+        new Bus() { LicensePlate = "WG00001", Capacity = 15 },
+        new Bus() { LicensePlate = "WG01230", Capacity = 20 },
+        new Bus() { LicensePlate = "WG12321", Capacity = 20 },
     };
     private List<Worker> Workers = new List<Worker>()
     {
-        new Worker()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Tom",
-            Bus = Buses[0]
-        },
-        new Worker()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Mark",
-            Bus = Buses[1]
-        },
-        new Worker()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Anna",
-            Bus = Buses[2]
-        },
-        new Worker()
-        {
-            Id = Guid.NewGuid(),
-            Name = "John",
-            Bus = Buses[3]
-        },
+        new Worker() { Name = "Tom", Bus = Buses[0] },
+        new Worker() { Name = "Mark", Bus = Buses[1] },
+        new Worker() { Name = "Anna", Bus = Buses[2] },
+        new Worker() { Name = "John", Bus = Buses[3] },
     };
     private List<User> Users = new List<User>()
     {
-        new User()
-        {
-            Id = Guid.NewGuid(),
-            Username = "Johhhny123",
-            Password = "12345"
-        },
-        new User()
-        {
-            Id = Guid.NewGuid(),
-            Username = "ILoveDogs",
-            Password = "doggy_*_*"
-        },
-        new User()
-        {
-            Id = Guid.NewGuid(),
-            Username = "SpeedyGonzalez",
-            Password = "iamspeed"
-        },
-        new User()
-        {
-            Id = Guid.NewGuid(),
-            Username = "JustTom",
-            Password = "MyNameIsTom"
-        },
-        new User()
-        {
-            Id = Guid.NewGuid(),
-            Username = "FancyBiker",
-            Password = "bike_bike"
-        },
+        new User() { Username = "Johhhny123", Password = "12345" },
+        new User() { Username = "ILoveDogs", Password = "doggy_*_*" },
+        new User() { Username = "SpeedyGonzalez", Password = "iamspeed" },
+        new User() { Username = "JustTom", Password = "MyNameIsTom" },
+        new User() { Username = "FancyBiker", Password = "bike_bike" },
     };
     private static List<Model> Models = new List<Model>()
     {
         new Model()
         {
-            Id = Guid.NewGuid(),
             Name = "EB Speedy",
             Production_year = 2020,
             Battery_capacity = 8
         },
         new Model()
         {
-            Id = Guid.NewGuid(),
             Name = "EB Comfy",
             Production_year = 2018,
             Battery_capacity = 10
@@ -141,21 +74,18 @@ public class DbSeeder
     {
         new Dock()
         {
-            Id = Guid.NewGuid(),
             Capacity = 25,
             Taken_spaces = 0,
             Address = "Flower Street 12a"
         },
         new Dock()
         {
-            Id = Guid.NewGuid(),
             Capacity = 15,
             Taken_spaces = 0,
             Address = "Long Street 2/6"
         },
         new Dock()
         {
-            Id = Guid.NewGuid(),
             Capacity = 30,
             Taken_spaces = 0,
             Address = "Wide Street 13"
@@ -195,13 +125,23 @@ public class DbSeeder
         {
             _bikeService.CreateBike(b);
         }
+        _rentService.CreateRent(
+            new Rent()
+            {
+                User = Users[0],
+                Bike = Bikes[0],
+                Rent_start = DateTime.Now,
+                Rent_end = DateTime.Now,
+                Dock_start = Docks[0],
+                Dock_end = Docks[1],
+            }
+        );
     }
 
     private Bike GenerateBike()
     {
         var bike = new Bike()
         {
-            Id = Guid.NewGuid(),
             BatteryPercent = 80,
             Model = Models[0],
             Dock = Docks[0]
