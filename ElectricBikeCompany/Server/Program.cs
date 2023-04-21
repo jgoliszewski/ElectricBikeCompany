@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.ResponseCompression;
 using ElectricBikeCompany.Server.Services;
+using ElectricBikeCompany.Server.Seeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +14,7 @@ builder.Services.AddSingleton<IRentService, RentService>();
 builder.Services.AddSingleton<IBikeService, BikeService>();
 builder.Services.AddSingleton<IDockService, DockService>();
 builder.Services.AddSingleton<IModelService, ModelService>();
+builder.Services.AddScoped<DbSeeder>();
 
 var app = builder.Build();
 
@@ -27,6 +28,13 @@ else
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+
+var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+using (var scope = scopedFactory.CreateScope())
+{
+    var service = scope.ServiceProvider.GetService<DbSeeder>();
+    service.Seed();
 }
 
 app.UseHttpsRedirection();
