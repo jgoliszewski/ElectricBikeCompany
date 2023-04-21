@@ -38,7 +38,7 @@ public class BusService : IBusService
     public async Task CreateBus(Bus bus)
     {
         await _http.PostAsJsonAsync("api/bus", bus);
-        _navigationManger.NavigateTo("buss");
+        _navigationManger.NavigateTo("buses");
     }
 
     public async Task UpdateBus(Guid busId, Bus bus)
@@ -49,6 +49,6 @@ public class BusService : IBusService
     public async Task DeleteBus(Guid busId)
     {
         var result = await _http.DeleteAsync($"api/bus/{busId}");
-        _navigationManger.NavigateTo("buss");
+        _navigationManger.NavigateTo("buses");
     }
 }
