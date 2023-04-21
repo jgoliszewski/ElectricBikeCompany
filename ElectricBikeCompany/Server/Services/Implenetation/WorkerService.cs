@@ -19,7 +19,7 @@ public class WorkerService : IWorkerService
 
     public async Task<Worker> CreateWorker(Worker worker)
     {
-        worker.Id = new Guid();
+        worker.Id = Guid.NewGuid();
         Workers.Add(worker);
         return worker;
     }

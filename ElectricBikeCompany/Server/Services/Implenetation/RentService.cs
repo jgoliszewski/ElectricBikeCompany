@@ -19,7 +19,7 @@ public class RentService : IRentService
 
     public async Task<Rent> CreateRent(Rent rent)
     {
-        rent.Id = new Guid();
+        rent.Id = Guid.NewGuid();
         Rents.Add(rent);
         return rent;
     }

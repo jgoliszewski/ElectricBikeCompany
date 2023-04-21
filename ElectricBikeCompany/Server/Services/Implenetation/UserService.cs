@@ -19,7 +19,7 @@ public class UserService : IUserService
 
     public async Task<User> CreateUser(User user)
     {
-        user.Id = new Guid();
+        user.Id = Guid.NewGuid();
         Users.Add(user);
         return user;
     }

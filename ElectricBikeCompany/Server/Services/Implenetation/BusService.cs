@@ -19,7 +19,7 @@ public class BusService : IBusService
 
     public async Task<Bus> CreateBus(Bus bus)
     {
-        bus.Id = new Guid();
+        bus.Id = Guid.NewGuid();
         Buss.Add(bus);
         return bus;
     }

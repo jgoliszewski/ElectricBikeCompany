@@ -19,7 +19,7 @@ public class DockService : IDockService
 
     public async Task<Dock> CreateDock(Dock dock)
     {
-        dock.Id = new Guid();
+        dock.Id = Guid.NewGuid();
         Docks.Add(dock);
         return dock;
     }

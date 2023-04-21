@@ -19,7 +19,7 @@ public class BikeService : IBikeService
 
     public async Task<Bike> CreateBike(Bike bike)
     {
-        bike.Id = new Guid();
+        bike.Id = Guid.NewGuid();
         Bikes.Add(bike);
         return bike;
     }

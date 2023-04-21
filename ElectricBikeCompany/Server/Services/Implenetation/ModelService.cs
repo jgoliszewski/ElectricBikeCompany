@@ -19,7 +19,7 @@ public class ModelService : IModelService
 
     public async Task<Model> CreateModel(Model model)
     {
-        model.Id = new Guid();
+        model.Id = Guid.NewGuid();
         Models.Add(model);
         return model;
     }
