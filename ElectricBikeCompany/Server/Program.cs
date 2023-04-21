@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using ElectricBikeCompany.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<IWorkerService, WorkerService>();
+builder.Services.AddSingleton<IBusService, BusService>();
+builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddSingleton<IRentService, RentService>();
+builder.Services.AddSingleton<IBikeService, BikeService>();
+builder.Services.AddSingleton<IDockService, DockService>();
+builder.Services.AddSingleton<IModelService, ModelService>();
 
 var app = builder.Build();
 
@@ -27,7 +35,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();
