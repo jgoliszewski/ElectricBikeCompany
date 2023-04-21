@@ -18,7 +18,7 @@
         @foreach (var model in ModelService.Models)
         {
             <tr>
-                <td>@model.Id.ToString()</td>
+                <td>@model.Id.ToString().Substring(0, 4)...@model.Id.ToString().Substring(32, 4)</td>
                 <td>@model.Name</td>
                 <td>@model.Production_year</td>
                 <td>@model.Battery_capacity</td>
