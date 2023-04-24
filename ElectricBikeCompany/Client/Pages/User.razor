@@ -1,0 +1,80 @@
+@page "/user"
+@page "/user/{id:guid}"
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new User</PageTitle>
+    <h3>Create a new User</h3>
+}
+else
+{
+    <PageTitle>Edit @user.Username</PageTitle>
+}
+
+<EditForm Model="user" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Username</label>
+        <InputText id="name" @bind-Value="user.Username" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteUser">
+        Delete User
+    </button>
+</EditForm>
+
+@code {
+    
+    [Parameter]
+    public Guid? Id { get; set; }
+    string btnText = string.Empty;
+    private Guid? selectedBusId;
+    private Guid emptyGuid = Guid.Empty;
+
+    ElectricBikeCompany.Shared.User user =
+        new ElectricBikeCompany.Shared.User{
+            Username = "Username"
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save New User" : "Update User";
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await UserService.GetUserById((Guid)Id);
+            if (result is not null)
+            {
+                user = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/user");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await UserService.CreateUser(user);
+        }
+        else
+        {
+            await UserService.UpdateUser((Guid)Id, user);
+            NavigationManager.NavigateTo("/users");
+        }
+    }
+
+    async Task DeleteUser()
+    {
+        await UserService.DeleteUser(user.Id);
+    }
+}

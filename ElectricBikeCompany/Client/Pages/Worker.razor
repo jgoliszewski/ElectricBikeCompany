@@ -1,0 +1,105 @@
+@page "/worker"
+@page "/worker/{id:guid}"
+@inject IWorkerService WorkerService
+@inject IBusService BusService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Worker</PageTitle>
+    <h3>Create a new Worker</h3>
+}
+else
+{
+    <PageTitle>Edit @worker.Name</PageTitle>
+}
+
+<EditForm Model="worker" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="worker.Name" class="form-control" />
+    </div>
+    <div>
+        <label for="bus">Bus</label>
+        <InputSelect id="bus" @bind-Value="@selectedBusId" class="form-control">
+            <option value="@emptyGuid"></option>
+            @foreach (var bus in BusService.Buses)
+            {
+                    <option value="@bus.Id">@bus.LicensePlate</option>
+            }
+        </InputSelect>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteWorker">
+        Delete Worker
+    </button>
+</EditForm>
+
+@code {
+    
+    [Parameter]
+    public Guid? Id { get; set; }
+    string btnText = string.Empty;
+    private Guid? selectedBusId;
+    private Guid emptyGuid = Guid.Empty;
+
+    ElectricBikeCompany.Shared.Worker worker =
+        new ElectricBikeCompany.Shared.Worker{
+            Name = "Name"
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BusService.GetBuses();
+        btnText = Id == null ? "Save New Worker" : "Update Worker";
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await WorkerService.GetWorkerById((Guid)Id);
+            if (result is not null)
+            {
+                worker = result;
+                selectedBusId = worker.Bus is null ? Guid.Empty : worker.Bus.Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/worker");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        Console.WriteLine(selectedBusId);
+        if(selectedBusId != Guid.Empty)
+        {
+            Console.WriteLine("Bus is not null");
+            worker.Bus = BusService.Buses.Where(b => b.Id == selectedBusId).FirstOrDefault();
+        }
+        else
+        {
+            Console.WriteLine("Bus is null");
+            worker.Bus = null;
+        }
+
+        if (Id is null)
+        {
+            await WorkerService.CreateWorker(worker);
+        }
+        else
+        {
+            await WorkerService.UpdateWorker((Guid)Id, worker);
+            NavigationManager.NavigateTo("/workers");
+        }
+    }
+
+    async Task DeleteWorker()
+    {
+        await WorkerService.DeleteWorker(worker.Id);
+    }
+}

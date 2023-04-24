@@ -1,0 +1,84 @@
+@page "/bus"
+@page "/bus/{id:guid}"
+@inject IBusService BusService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Bus</PageTitle>
+    <h3>Create a new Bus</h3>
+}
+else
+{
+    <PageTitle>Edit Bus @bus.LicensePlate</PageTitle>
+}
+
+<EditForm Model="bus" OnSubmit="HandleSubmit">
+    <div>
+        <label for="licensePlate">License Plate</label>
+        <InputText id="licensePlate" @bind-Value="bus.LicensePlate" class="form-control" />
+    </div>
+    <div>
+        <label for="capacity">Capacity</label>
+        <InputNumber id="capacity" @bind-Value="bus.Capacity" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteBus">
+        Delete Bus
+    </button>
+</EditForm>
+
+@code {
+    
+    [Parameter]
+    public Guid? Id { get; set; }
+    string btnText = string.Empty;
+
+    ElectricBikeCompany.Shared.Bus bus =
+        new ElectricBikeCompany.Shared.Bus{
+            LicensePlate = "XX00000",
+            Capacity = 0
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BusService.GetBuses();
+        btnText = Id == null ? "Save New Bus" : "Update Bus";
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await BusService.GetBusById((Guid)Id);
+            if (result is not null)
+            {
+                bus = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/bus");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await BusService.CreateBus(bus);
+        }
+        else
+        {
+            await BusService.UpdateBus((Guid)Id, bus);
+            NavigationManager.NavigateTo("/buses");
+        }
+    }
+
+    async Task DeleteBus()
+    {
+        await BusService.DeleteBus(bus.Id);
+    }
+}

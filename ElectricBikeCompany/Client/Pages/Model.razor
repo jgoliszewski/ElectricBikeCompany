@@ -1,0 +1,87 @@
+@page "/model"
+@page "/model/{id:guid}"
+@inject IModelService ModelService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Model</PageTitle>
+    <h3>Create a new Model</h3>
+}
+else
+{
+    <PageTitle>Edit @model.Name</PageTitle>
+}
+
+<EditForm Model="model" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="model.Name" class="form-control" />
+    </div>
+    <div>
+        <label for="productionYear">Production year</label>
+        <InputNumber id="productionYear" @bind-Value="model.Production_year" class="form-control" />
+    </div>
+    <div>
+        <label for="batteryCapacity">Battery capacity</label>
+        <InputNumber id="batteryCapacity" @bind-Value="model.Battery_capacity" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteModel">
+        Delete Model
+    </button>
+</EditForm>
+
+@code {
+    
+    [Parameter]
+    public Guid? Id { get; set; }
+    string btnText = string.Empty;
+    ElectricBikeCompany.Shared.Model model =
+        new ElectricBikeCompany.Shared.Model{
+            Name = "Name",
+            Production_year = 1999,
+            Battery_capacity = 0
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save New Model" : "Update Model";
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ModelService.GetModelById((Guid)Id);
+            if (result is not null)
+            {
+                model = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/model");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await ModelService.CreateModel(model);
+        }
+        else
+        {
+            await ModelService.UpdateModel((Guid)Id, model);
+            NavigationManager.NavigateTo("/models");
+        }
+    }
+
+    async Task DeleteModel()
+    {
+        await ModelService.DeleteModel(model.Id);
+    }
+}

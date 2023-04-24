@@ -1,0 +1,153 @@
+@page "/rent"
+@page "/rent/{id:guid}"
+@inject IRentService RentService
+@inject IUserService UserService
+@inject IBikeService BikeService
+@inject IDockService DockService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Rent</PageTitle>
+    <h3>Create a new Rent</h3>
+}
+else
+{
+    <PageTitle>Edit @rent.Id</PageTitle>
+}
+
+<EditForm Model="rent" OnSubmit="HandleSubmit">
+    <div>
+        <label for="user">User</label>
+        <InputSelect id="user" @bind-Value="@selectedUserId" class="form-control">
+            @foreach (var user in UserService.Users)
+            {
+                    <option value="@user.Id">@user.Username</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="bike">Bike</label>
+        <InputSelect id="bike" @bind-Value="@selectedBikeId" class="form-control">
+            @foreach (var bike in BikeService.Bikes)
+            {
+                    <option value="@bike.Id">@bike.Model.Name - @bike.Id</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="startingDock">Starting Dock</label>
+        <InputSelect id="startingDock" @bind-Value="@selectedDockStartId" class="form-control">
+            <option value="@emptyGuid"></option>
+            @foreach (var dock in DockService.Docks)
+            {
+                    <option value="@dock.Id">@dock.Address</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="endingDock">Ending Dock</label>
+        <InputSelect id="endingDock" @bind-Value="@selectedDockEndId" class="form-control">
+            <option value="@emptyGuid"></option>
+            @foreach (var dock in DockService.Docks)
+            {
+                    <option value="@dock.Id">@dock.Address</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="rentStart">Rent Start</label>
+        <InputDate Type="InputDateType.DateTimeLocal" @bind-Value:format="dd/MM/yyyy hh:mm:ss" id="rentStart" @bind-Value="@rent.Rent_start" class="form-control"></InputDate>
+    </div>
+    <div>
+        <label for="rentEnd">Rent End</label>
+        <InputDate Type="InputDateType.DateTimeLocal" @bind-Value:format="dd/MM/yyyy hh:mm:ss" id="rentEnd" @bind-Value="@rent.Rent_end" class="form-control"></InputDate>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteRent">
+        Delete Rent
+    </button>
+</EditForm>
+
+@code {
+    
+    [Parameter]
+    public Guid? Id { get; set; }
+    string btnText = string.Empty;
+    private Guid selectedUserId;
+    private Guid selectedBikeId;
+    private Guid? selectedDockStartId;
+    private Guid? selectedDockEndId;
+    private Guid emptyGuid = Guid.Empty;
+
+    ElectricBikeCompany.Shared.Rent rent =
+        new ElectricBikeCompany.Shared.Rent{
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UserService.GetUsers();
+        await BikeService.GetBikes();
+        await DockService.GetDocks();
+        btnText = Id == null ? "Save New Rent" : "Update Rent";
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await RentService.GetRentById((Guid)Id);
+            if (result is not null)
+            {
+                rent = result;
+                selectedUserId = rent.User is null ? Guid.Empty : rent.User.Id;
+                selectedBikeId = rent.Bike is null ? Guid.Empty : rent.Bike.Id;
+                selectedDockStartId = rent.Dock_start is null ? Guid.Empty : rent.Dock_start.Id;
+                selectedDockEndId = rent.Dock_end is null ? Guid.Empty : rent.Dock_end.Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/rent");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        rent.User = UserService.Users.Where(u => u.Id == selectedUserId).FirstOrDefault();
+        rent.Bike = BikeService.Bikes.Where(b => b.Id == selectedBikeId).FirstOrDefault();
+        if(selectedDockStartId != Guid.Empty)
+        {
+            rent.Dock_start = DockService.Docks.Where(d => d.Id == selectedDockStartId).FirstOrDefault();
+        }
+        else
+        {
+            rent.Dock_start = null;
+        }
+        if(selectedDockEndId != Guid.Empty)
+        {
+            rent.Dock_end = DockService.Docks.Where(d => d.Id == selectedDockEndId).FirstOrDefault();
+        }
+        else
+        {
+            rent.Dock_end = null;
+        }
+
+        if (Id is null)
+        {
+            await RentService.CreateRent(rent);
+        }
+        else
+        {
+            await RentService.UpdateRent((Guid)Id, rent);
+            NavigationManager.NavigateTo("/rents");
+        }
+    }
+
+    async Task DeleteRent()
+    {
+        await RentService.DeleteRent(rent.Id);
+    }
+}

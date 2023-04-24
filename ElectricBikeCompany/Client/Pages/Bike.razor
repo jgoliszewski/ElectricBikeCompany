@@ -1,0 +1,118 @@
+@page "/bike"
+@page "/bike/{id:guid}"
+@inject IBikeService BikeService
+@inject IModelService ModelService
+@inject IDockService DockService
+@inject NavigationManager NavigationManager
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Bike</PageTitle>
+    <h3>Create a new Bike</h3>
+}
+else
+{
+    <PageTitle>Edit Bike</PageTitle>
+}
+
+<EditForm Model="bike" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Battery %</label>
+        <InputNumber id="name" @bind-Value="bike.BatteryPercent" class="form-control" />
+    </div>
+    <div>
+        <label for="model">Model</label>
+        <InputSelect id="model" @bind-Value="@selectedModelId" class="form-control">
+            @foreach (var model in ModelService.Models)
+            {
+                    <option value="@model.Id">@model.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="dock">Dock</label>
+        <InputSelect id="dock" @bind-Value="@selectedDockId" class="form-control">
+            <option value="@emptyGuid"></option>
+            @foreach (var dock in DockService.Docks)
+            {
+                    <option value="@dock.Id">@dock.Address</option>
+            }
+        </InputSelect>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteBike">
+        Delete Bike
+    </button>
+</EditForm>
+
+@code {
+    
+    [Parameter]
+    public Guid? Id { get; set; }
+    string btnText = string.Empty;
+    private Guid? selectedModelId;
+    private Guid? selectedDockId;
+    private Guid emptyGuid = Guid.Empty;
+
+    ElectricBikeCompany.Shared.Bike bike =
+        new ElectricBikeCompany.Shared.Bike{
+            BatteryPercent = 100,
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ModelService.GetModels();
+        await DockService.GetDocks();
+        btnText = Id == null ? "Save New Bike" : "Update Bike";
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await BikeService.GetBikeById((Guid)Id);
+            if (result is not null)
+            {
+                bike = result;
+                selectedDockId = bike.Dock is null ? Guid.Empty : bike.Dock.Id;
+                selectedModelId = bike.Model is null ? Guid.Empty : bike.Model.Id;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/bike");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if(selectedDockId != Guid.Empty)
+        {
+            bike.Dock = DockService.Docks.Where(d => d.Id == selectedDockId).FirstOrDefault();
+        }
+        else
+        {
+            bike.Dock = null;
+        }
+
+        bike.Model = ModelService.Models.Where(m => m.Id == selectedModelId).FirstOrDefault();
+
+
+        if (Id is null)
+        {
+            await BikeService.CreateBike(bike);
+        }
+        else
+        {
+            await BikeService.UpdateBike((Guid)Id, bike);
+            NavigationManager.NavigateTo("/bikes");
+        }
+    }
+
+    async Task DeleteBike()
+    {
+        await BikeService.DeleteBike(bike.Id);
+    }
+}
