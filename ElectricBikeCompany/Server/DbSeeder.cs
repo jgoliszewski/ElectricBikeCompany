@@ -95,10 +95,12 @@ public class DbSeeder
 
     public void Seed()
     {
+        Random rand = new Random();
         var bikeCount = 10;
         for (int i = 0; i < bikeCount; i++)
         {
-            Bikes.Add(GenerateBike());
+            var n = rand.NextDouble() >= 0.5 ? 1 : 0;
+            Bikes.Add(GenerateBike(n));
         }
 
         foreach (var w in Workers)
@@ -138,13 +140,13 @@ public class DbSeeder
         );
     }
 
-    private Bike GenerateBike()
+    private Bike GenerateBike(int n)
     {
         var bike = new Bike()
         {
             BatteryPercent = 80,
-            Model = Models[0],
-            Dock = Docks[0]
+            Model = Models[n],
+            Dock = Docks[1 - n]
         };
         return bike;
     }
