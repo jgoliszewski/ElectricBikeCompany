@@ -18,7 +18,7 @@ public class BusService : IBusService
 
     public List<Bus> Buses { get; set; } = new List<Bus>();
 
-    public async Task GetBuss()
+    public async Task GetBuses()
     {
         var result = await _http.GetFromJsonAsync<List<Bus>>("api/bus");
         if (result is not null)
