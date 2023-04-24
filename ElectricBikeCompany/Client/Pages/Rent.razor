@@ -112,20 +112,20 @@ else
                 NavigationManager.NavigateTo("/rent");
             }
         }
+        else
+        {
+            selectedUserId = UserService.Users[0].Id;
+            selectedBikeId = BikeService.Bikes[0].Id;
+            selectedDockStartId = DockService.Docks[0].Id;
+        }
     }
 
     async Task HandleSubmit()
     {
         rent.User = UserService.Users.Where(u => u.Id == selectedUserId).FirstOrDefault();
         rent.Bike = BikeService.Bikes.Where(b => b.Id == selectedBikeId).FirstOrDefault();
-        if(selectedDockStartId != Guid.Empty)
-        {
-            rent.Dock_start = DockService.Docks.Where(d => d.Id == selectedDockStartId).FirstOrDefault();
-        }
-        else
-        {
-            rent.Dock_start = null;
-        }
+        rent.Dock_start = DockService.Docks.Where(d => d.Id == selectedDockStartId).FirstOrDefault();
+
         if(selectedDockEndId != Guid.Empty)
         {
             rent.Dock_end = DockService.Docks.Where(d => d.Id == selectedDockEndId).FirstOrDefault();

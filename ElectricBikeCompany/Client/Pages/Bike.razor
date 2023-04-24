@@ -84,6 +84,10 @@ else
                 NavigationManager.NavigateTo("/bike");
             }
         }
+        else
+        {
+            selectedModelId = ModelService.Models[0].Id;
+        }
     }
 
     async Task HandleSubmit()
@@ -96,9 +100,9 @@ else
         {
             bike.Dock = null;
         }
-
+        
         bike.Model = ModelService.Models.Where(m => m.Id == selectedModelId).FirstOrDefault();
-
+ 
 
         if (Id is null)
         {
